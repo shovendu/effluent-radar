@@ -1,0 +1,502 @@
+<title>Effluent Radar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #f2f5f4;
+    --surface: #ffffff;
+    --surface-2: #e9eeed;
+    --ink: #10262b;
+    --muted: #5c7176;
+    --border: #d7e0df;
+    --accent: #0e7c86;
+    --accent-ink: #ffffff;
+    --accent-soft: #e2f2f1;
+    --shadow: 0 1px 2px rgba(16,38,43,0.06), 0 4px 14px rgba(16,38,43,0.05);
+
+    --st-new: #64748b;
+    --st-new-bg: #eef1f4;
+    --st-interested: #b45309;
+    --st-interested-bg: #fdf1e2;
+    --st-applied: #1d4ed8;
+    --st-applied-bg: #e6ecfd;
+    --st-interview: #7c3aed;
+    --st-interview-bg: #f0e9fd;
+    --st-offer: #15803d;
+    --st-offer-bg: #e3f5e8;
+    --st-rejected: #b91c1c;
+    --st-rejected-bg: #fbe7e7;
+    --st-closed: #6b7280;
+    --st-closed-bg: #eceef0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c1719;
+      --surface: #101e21;
+      --surface-2: #16282b;
+      --ink: #e7f1f0;
+      --muted: #90a7ab;
+      --border: #1f3438;
+      --accent: #2dd4bf;
+      --accent-ink: #06201e;
+      --accent-soft: #12302e;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 18px rgba(0,0,0,0.35);
+
+      --st-new: #93a5ab; --st-new-bg: #1c2b2e;
+      --st-interested: #f0a94e; --st-interested-bg: #2c210f;
+      --st-applied: #7ba3ff; --st-applied-bg: #16213b;
+      --st-interview: #b794f6; --st-interview-bg: #241a35;
+      --st-offer: #4ade80; --st-offer-bg: #112b1a;
+      --st-rejected: #f87171; --st-rejected-bg: #341717;
+      --st-closed: #9aa5a8; --st-closed-bg: #1b2426;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c1719;
+    --surface: #101e21;
+    --surface-2: #16282b;
+    --ink: #e7f1f0;
+    --muted: #90a7ab;
+    --border: #1f3438;
+    --accent: #2dd4bf;
+    --accent-ink: #06201e;
+    --accent-soft: #12302e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 18px rgba(0,0,0,0.35);
+
+    --st-new: #93a5ab; --st-new-bg: #1c2b2e;
+    --st-interested: #f0a94e; --st-interested-bg: #2c210f;
+    --st-applied: #7ba3ff; --st-applied-bg: #16213b;
+    --st-interview: #b794f6; --st-interview-bg: #241a35;
+    --st-offer: #4ade80; --st-offer-bg: #112b1a;
+    --st-rejected: #f87171; --st-rejected-bg: #341717;
+    --st-closed: #9aa5a8; --st-closed-bg: #1b2426;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    margin: 0;
+    padding: 28px 20px 80px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  header.top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 14px; margin-bottom: 6px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--accent); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; flex: none;
+  }
+  h1 { font-size: 22px; margin: 0; letter-spacing: 0.2px; text-wrap: balance; }
+  .tagline { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+
+  .sync-banner {
+    margin: 16px 0 22px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12.5px; color: var(--muted);
+    box-shadow: var(--shadow);
+  }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--st-interested); flex: none; }
+  .sync-banner strong { color: var(--ink); }
+
+  .stats-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 22px; }
+  .stat-tile {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 10px; text-align: center; box-shadow: var(--shadow);
+  }
+  .stat-tile .n { font-family: "IBM Plex Mono", monospace; font-size: 21px; font-weight: 600; }
+  .stat-tile .l { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .layout { display: grid; grid-template-columns: 210px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } .stats-row { grid-template-columns: repeat(3,1fr); } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; box-shadow: var(--shadow);
+  }
+  .panel h2 {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted);
+    margin: 0 0 10px 0; font-weight: 600;
+  }
+  .filter-btn {
+    display: flex; width: 100%; justify-content: space-between; align-items: center;
+    padding: 7px 9px; border-radius: 7px; border: none; background: transparent;
+    color: var(--ink); font-size: 13px; cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .filter-btn:hover { background: var(--surface-2); }
+  .filter-btn.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .filter-btn .c { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 11.5px; }
+  .filter-btn.active .c { color: var(--accent); }
+
+  .search-box {
+    width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink); font-family: inherit; font-size: 13px; margin-bottom: 14px;
+  }
+  .search-box:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  main.col { display: flex; flex-direction: column; gap: 14px; }
+
+  .job-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px;
+  }
+  .job-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .job-title { font-size: 15px; font-weight: 600; margin: 0; }
+  .job-title a { color: var(--ink); text-decoration: none; }
+  .job-title a:hover { color: var(--accent); text-decoration: underline; }
+  .job-sub { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10.5px; padding: 3px 8px; border-radius: 999px; background: var(--surface-2);
+    color: var(--muted); font-weight: 500;
+  }
+  .verify-tag { background: var(--st-interested-bg); color: var(--st-interested); }
+
+  .gauge-row { display: flex; align-items: center; gap: 8px; }
+  .gauge-track { flex: 1; height: 6px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .gauge-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+  .gauge-num { font-size: 11.5px; color: var(--muted); width: 34px; text-align: right; }
+
+  .job-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .status-select {
+    font-family: "IBM Plex Sans", sans-serif; font-size: 12px; font-weight: 600;
+    padding: 5px 10px; border-radius: 999px; border: none; cursor: pointer;
+  }
+  .note-input {
+    flex: 1; min-width: 160px; font-size: 12.5px; padding: 6px 9px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--ink); font-family: inherit;
+  }
+  .note-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .empty-note { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+
+  h3.section-h {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted);
+    margin: 30px 0 12px; font-weight: 600; border-top: 1px solid var(--border); padding-top: 22px;
+  }
+
+  .add-form {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr 0.8fr auto; gap: 8px; align-items: center;
+  }
+  @media (max-width: 760px) { .add-form { grid-template-columns: 1fr 1fr; } }
+  .add-form input, .add-form select {
+    padding: 8px 9px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink); font-family: inherit; font-size: 12.5px; width: 100%;
+  }
+  .add-form input:focus, .add-form select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .btn-add {
+    background: var(--accent); color: var(--accent-ink); border: none; border-radius: 7px;
+    padding: 8px 14px; font-weight: 600; font-size: 12.5px; cursor: pointer; font-family: inherit;
+  }
+  .btn-add:hover { opacity: 0.9; }
+
+  .launch-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .launch-grid { grid-template-columns: repeat(2, 1fr); } }
+  .launch-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 13px; box-shadow: var(--shadow); text-decoration: none; color: var(--ink);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .launch-card:hover { border-color: var(--accent); }
+  .launch-card .name { font-weight: 600; font-size: 13px; }
+  .launch-card .desc { font-size: 11px; color: var(--muted); }
+
+  .watch-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .watch-grid { grid-template-columns: repeat(2, 1fr); } }
+  .watch-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 11px 13px; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center;
+  }
+  .watch-card a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: 12.5px; }
+  .watch-card a:hover { color: var(--accent); }
+  .watch-card .why { font-size: 10.5px; color: var(--muted); }
+
+  footer.note {
+    margin-top: 34px; padding-top: 16px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 11.5px; text-align: center;
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">📡</div>
+      <div>
+        <h1>Effluent Radar</h1>
+        <div class="tagline">Personal job-tracking system — ETP · wastewater · sustainability compliance · Europe</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sync-banner" id="syncBanner">
+    <span class="sync-dot"></span>
+    <span>Loading sync status…</span>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="layout">
+    <div class="panel" id="filterPanel">
+      <h2>Pipeline stage</h2>
+      <div id="stageFilters"></div>
+      <h2 style="margin-top:16px;">Role type</h2>
+      <div id="roleFilters"></div>
+    </div>
+
+    <main class="col">
+      <input class="search-box" id="searchBox" type="text" placeholder="Search title, company, tag…">
+      <div id="jobList" class="col"></div>
+    </main>
+  </div>
+
+  <h3 class="section-h">Log a job you found</h3>
+  <div class="panel">
+    <form class="add-form" id="addForm">
+      <input type="text" id="f-title" placeholder="Job title" required>
+      <input type="text" id="f-company" placeholder="Company">
+      <input type="text" id="f-location" placeholder="Location">
+      <select id="f-roleType">
+        <option value="ops">Ops</option>
+        <option value="compliance">Compliance</option>
+        <option value="esg">ESG</option>
+        <option value="design">Design</option>
+        <option value="data">Data</option>
+      </select>
+      <button type="submit" class="btn-add">Add</button>
+      <input type="url" id="f-url" placeholder="Listing URL (optional)" style="grid-column: 1 / -1;">
+    </form>
+  </div>
+
+  <h3 class="section-h">Quick-search launchpad</h3>
+  <div class="launch-grid" id="launchGrid"></div>
+
+  <h3 class="section-h">Target employers to watch</h3>
+  <div class="watch-grid" id="watchGrid"></div>
+
+  <footer class="note">
+    v1 · manual tracker + curated launchpad. Automated daily scanning &amp; digest not yet connected — ask Claude to turn it on when ready.
+  </footer>
+</div>
+
+<script>
+(function(){
+  const STAGES = [
+    { key: "new", label: "New" },
+    { key: "interested", label: "Interested" },
+    { key: "applied", label: "Applied" },
+    { key: "interview", label: "Interview" },
+    { key: "offer", label: "Offer" },
+    { key: "rejected", label: "Rejected" },
+    { key: "closed", label: "Closed" },
+  ];
+  const ROLE_TYPES = [
+    { key: "ops", label: "Hands-on ETP/plant ops" },
+    { key: "compliance", label: "Compliance / audit" },
+    { key: "esg", label: "Corporate ESG" },
+    { key: "design", label: "Process / 3D design" },
+    { key: "data", label: "Water data analysis" },
+  ];
+
+  const LAUNCHPAD = [
+    { name: "LinkedIn Jobs", desc: "wastewater treatment · Europe", url: "https://www.linkedin.com/jobs/search/?keywords=wastewater%20treatment%20OR%20ETP%20OR%20ZDHC&location=Europe" },
+    { name: "Indeed", desc: "water treatment engineer · Europe", url: "https://www.indeed.com/jobs?q=water+treatment+engineer&l=Europe" },
+    { name: "TotalJobs", desc: "wastewater engineer · in Europe", url: "https://www.totaljobs.com/jobs/wastewater-engineer/in-europe" },
+    { name: "TotalJobs — water", desc: "broader water-sector roles", url: "https://www.totaljobs.com/jobs/water/in-europe" },
+    { name: "Glassdoor UK", desc: "keyword search, adjust country", url: "https://www.glassdoor.co.uk/Job/jobs.htm?sc.keyword=effluent+treatment+plant" },
+    { name: "WaterJobsUK", desc: "UK water-industry specialist board", url: "https://www.waterjobsuk.com/" },
+    { name: "EURES (EU job mobility)", desc: "official EU portal — search manually", url: "https://eures.ec.europa.eu/index_en" },
+    { name: "edie Jobs", desc: "UK sustainability/environment roles", url: "https://www.edie.net/jobs/" },
+    { name: "Environment Job", desc: "UK environmental sector board", url: "https://www.environmentjob.co.uk/jobs" },
+    { name: "GreenJobs", desc: "environmental & sustainability roles", url: "https://www.greenjobs.co.uk/" },
+    { name: "Bureau Veritas careers", desc: "TIC / audit — search Europe offices", url: "https://jobs.bureauveritas.com/gb/en/search-results" },
+    { name: "Control Union careers", desc: "certification & audit vacancies", url: "https://www.controlunion.com/careers-2/vacancies/" },
+  ];
+
+  const WATCHLIST = [
+    { name: "H&M Group Careers", why: "existing buyer relationship on your CV", url: "https://career.hm.com/" },
+    { name: "Inditex (Zara) Careers", why: "existing buyer relationship", url: "https://www.inditexcareers.com/" },
+    { name: "QIMA", why: "runs Higg FEM / ZDHC auditor roles across Europe", url: "https://www.qima.com/careers" },
+    { name: "ELEVATE", why: "sustainability & supply-chain auditing", url: "https://www.elevatelimited.com/careers/" },
+    { name: "SGS Careers", why: "global TIC, strong textile/ESG practice", url: "https://www.sgs.com/en/careers" },
+    { name: "Intertek Careers", why: "TIC, strong textile practice", url: "https://careers.intertek.com/" },
+    { name: "Veolia", why: "major European water/wastewater operator", url: "https://www.veolia.com/en/careers" },
+    { name: "Jacobs Careers", why: "global water/environment engineering", url: "https://careers.jacobs.com/" },
+  ];
+
+  const state = { db: null, jobs: [], stage: "all", role: "all", search: "" };
+
+  function esc(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+  function renderLaunchpad(){
+    document.getElementById("launchGrid").innerHTML = LAUNCHPAD.map(l =>
+      `<a class="launch-card" href="${esc(l.url)}" target="_blank" rel="noopener">
+        <span class="name">${esc(l.name)}</span>
+        <span class="desc">${esc(l.desc)}</span>
+      </a>`
+    ).join("");
+    document.getElementById("watchGrid").innerHTML = WATCHLIST.map(w =>
+      `<div class="watch-card">
+        <div>
+          <a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.name)}</a>
+          <div class="why">${esc(w.why)}</div>
+        </div>
+      </div>`
+    ).join("");
+  }
+
+  function renderStats(){
+    const counts = {};
+    STAGES.forEach(s => counts[s.key] = 0);
+    state.jobs.forEach(j => { counts[j.status] = (counts[j.status]||0) + 1; });
+    document.getElementById("statsRow").innerHTML = STAGES.slice(0,6).map(s =>
+      `<div class="stat-tile"><div class="n">${counts[s.key]||0}</div><div class="l">${esc(s.label)}</div></div>`
+    ).join("");
+  }
+
+  function renderFilters(){
+    const stageHtml = [`<button class="filter-btn ${state.stage==='all'?'active':''}" data-stage="all"><span>All</span><span class="c">${state.jobs.length}</span></button>`]
+      .concat(STAGES.map(s => {
+        const n = state.jobs.filter(j=>j.status===s.key).length;
+        return `<button class="filter-btn ${state.stage===s.key?'active':''}" data-stage="${s.key}"><span>${esc(s.label)}</span><span class="c">${n}</span></button>`;
+      })).join("");
+    document.getElementById("stageFilters").innerHTML = stageHtml;
+
+    const roleHtml = [`<button class="filter-btn ${state.role==='all'?'active':''}" data-role="all"><span>All</span><span class="c">${state.jobs.length}</span></button>`]
+      .concat(ROLE_TYPES.map(r => {
+        const n = state.jobs.filter(j=>j.roleType===r.key).length;
+        return `<button class="filter-btn ${state.role===r.key?'active':''}" data-role="${r.key}"><span>${esc(r.label)}</span><span class="c">${n}</span></button>`;
+      })).join("");
+    document.getElementById("roleFilters").innerHTML = roleHtml;
+
+    document.querySelectorAll("[data-stage]").forEach(b => b.onclick = () => { state.stage = b.dataset.stage; render(); });
+    document.querySelectorAll("[data-role]").forEach(b => b.onclick = () => { state.role = b.dataset.role; render(); });
+  }
+
+  function statusColorVars(key){
+    return `background: var(--st-${key}-bg); color: var(--st-${key});`;
+  }
+
+  function renderJobs(){
+    let list = state.jobs.slice();
+    if (state.stage !== "all") list = list.filter(j => j.status === state.stage);
+    if (state.role !== "all") list = list.filter(j => j.roleType === state.role);
+    if (state.search.trim()) {
+      const q = state.search.trim().toLowerCase();
+      list = list.filter(j => (j.title+" "+j.company+" "+(j.tags||[]).join(" ")).toLowerCase().includes(q));
+    }
+    list.sort((a,b) => (b.matchScore||0) - (a.matchScore||0) || (b.addedAt||"").localeCompare(a.addedAt||""));
+
+    const el = document.getElementById("jobList");
+    if (!list.length) {
+      el.innerHTML = `<div class="empty-note">No jobs match this filter yet. Log one below, or clear filters.</div>`;
+      return;
+    }
+    el.innerHTML = list.map(j => {
+      const tags = (j.tags||[]).map(t => `<span class="tag">${esc(t)}</span>`).join("");
+      const verify = j.verified === false ? `<span class="tag verify-tag">confirm on source site</span>` : "";
+      const score = Math.max(0, Math.min(100, j.matchScore||0));
+      const link = j.url ? `<a href="${esc(j.url)}" target="_blank" rel="noopener">${esc(j.title)}</a>` : esc(j.title);
+      return `<div class="job-card" data-id="${esc(j.id)}">
+        <div class="job-top">
+          <div>
+            <p class="job-title">${link}</p>
+            <div class="job-sub">${esc(j.company||"—")} ${j.location? "· "+esc(j.location):""} ${j.source? "· via "+esc(j.source):""}</div>
+          </div>
+          <div class="gauge-row" style="min-width:120px;">
+            <div class="gauge-track"><div class="gauge-fill" style="width:${score}%"></div></div>
+            <div class="gauge-num mono">${score}%</div>
+          </div>
+        </div>
+        <div class="badge-row">${tags}${verify}</div>
+        <div class="job-bottom">
+          <select class="status-select" data-id="${esc(j.id)}" style="${statusColorVars(j.status)}">
+            ${STAGES.map(s=>`<option value="${s.key}" ${s.key===j.status?"selected":""}>${esc(s.label)}</option>`).join("")}
+          </select>
+          <input class="note-input" data-id="${esc(j.id)}" placeholder="Notes…" value="${esc(j.notes||"")}">
+        </div>
+      </div>`;
+    }).join("");
+
+    el.querySelectorAll(".status-select").forEach(sel => {
+      sel.onchange = async () => {
+        sel.setAttribute("style", statusColorVars(sel.value));
+        if (state.db) await state.db.collection("jobs").doc(sel.dataset.id).update({ status: sel.value });
+      };
+    });
+    el.querySelectorAll(".note-input").forEach(inp => {
+      inp.onblur = async () => {
+        if (state.db) await state.db.collection("jobs").doc(inp.dataset.id).update({ notes: inp.value });
+      };
+    });
+  }
+
+  function render(){ renderStats(); renderFilters(); renderJobs(); }
+
+  document.getElementById("searchBox").addEventListener("input", (e) => { state.search = e.target.value; render(); });
+
+  document.getElementById("addForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = document.getElementById("f-title").value.trim();
+    if (!title) return;
+    const doc = {
+      title,
+      company: document.getElementById("f-company").value.trim(),
+      location: document.getElementById("f-location").value.trim(),
+      roleType: document.getElementById("f-roleType").value,
+      url: document.getElementById("f-url").value.trim(),
+      source: "manual",
+      status: "new",
+      matchScore: 50,
+      tags: [],
+      verified: true,
+      notes: "",
+      addedAt: new Date().toISOString(),
+    };
+    if (state.db) {
+      await state.db.collection("jobs").add(doc);
+    } else {
+      doc.id = "local-" + Date.now();
+      state.jobs.push(doc);
+      render();
+    }
+    e.target.reset();
+  });
+
+  function renderSyncBanner(meta){
+    const el = document.getElementById("syncBanner");
+    if (!meta) {
+      el.innerHTML = `<span class="sync-dot"></span><span><strong>Manual seed mode</strong> — automated daily scanning isn't connected yet.</span>`;
+      return;
+    }
+    const date = meta.lastUpdated ? new Date(meta.lastUpdated).toLocaleString() : "unknown";
+    el.innerHTML = `<span class="sync-dot"></span><span><strong>${esc(meta.mode||"manual-seed")}</strong> — last updated ${esc(date)}. ${esc(meta.note||"")}</span>`;
+  }
+
+  renderLaunchpad();
+  render();
+
+  claude.use("db").then(db => {
+    state.db = db;
+    if (!db) { renderSyncBanner(null); return; }
+
+    db.doc("meta/sync").onSnapshot(snap => {
+      renderSyncBanner(snap.exists ? snap.data() : null);
+    }, () => renderSyncBanner(null));
+
+    db.collection("jobs").onSnapshot(qs => {
+      state.jobs = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    }, () => { /* keep whatever we have */ });
+  }).catch(() => renderSyncBanner(null));
+})();
+</script>
