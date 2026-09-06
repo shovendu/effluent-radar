@@ -485,6 +485,14 @@
   renderLaunchpad();
   render();
 
+  // Outside a claude.ai artifact frame (e.g. a static copy on another host),
+  // `window.claude` does not exist at all — guard the reference itself so we
+  // degrade to the no-database view instead of throwing before ever painting it.
+  if (typeof claude === "undefined" || !claude.use) {
+    renderSyncBanner(null);
+    return;
+  }
+
   claude.use("db").then(db => {
     state.db = db;
     if (!db) { renderSyncBanner(null); return; }
